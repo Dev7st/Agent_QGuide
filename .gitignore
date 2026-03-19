@@ -5,8 +5,11 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
-.venv/
-venv/
+
+# 가상환경 (miniforge/conda)
+envs/
+.conda/
+*.conda
 
 # 환경변수
 .env
