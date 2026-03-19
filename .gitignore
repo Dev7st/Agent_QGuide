@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+
+# 환경변수
+.env
+
+# 실행 중 생성되는 데이터
+data/chroma_db/
+data/conversations.db
+cache/
+
+# IDE
+.vscode/
+.idea/
