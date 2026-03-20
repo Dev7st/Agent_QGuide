@@ -41,14 +41,14 @@ langgraph/
 │   ├── vector_search.py     # ChromaDB 벡터 검색
 │   ├── keyword_search.py    # BM25 키워드 검색
 │   └── hybrid_search.py     # RRF 융합
-├── database/
+├── store/
 │   ├── __init__.py
 │   ├── vector_store.py      # ChromaDB 연결 및 저장
 │   └── embedding.py         # 임베딩 모델 (jhgan/ko-sroberta-multitask)
 ├── crawling/
 │   ├── __init__.py
 │   └── crawler.py           # 제조사별 크롤러 (온디맨드)
-├── data/
+├── database/
 │   ├── chroma_db/           # ChromaDB 저장 경로
 │   └── conversations.db     # SqliteSaver 대화 기록
 └── cache/

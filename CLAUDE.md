@@ -43,12 +43,12 @@ langgraph/
 │   ├── vector_search.py
 │   ├── keyword_search.py
 │   └── hybrid_search.py
-├── database/
+├── store/
 │   ├── vector_store.py
 │   └── embedding.py
 ├── crawling/
 │   └── crawler.py
-├── data/
+├── database/
 └── cache/
 ```
 
