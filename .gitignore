@@ -22,3 +22,6 @@ cache/
 # IDE
 .vscode/
 .idea/
+
+# 참고용 더미 파일
+dummy/
