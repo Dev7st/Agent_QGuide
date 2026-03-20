@@ -15,7 +15,7 @@ envs/
 .env
 
 # 실행 중 생성되는 데이터
-database/chroma_db/
+database/chroma_db/*
 !database/chroma_db/.gitkeep
 database/conversations.db
 cache/
