@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-core
+langgraph
+langchain-ollama
+chromadb
+rank-bm25
+fastapi
+uvicorn
+sentence-transformers
+beautifulsoup4
+requests
+python-dotenv
