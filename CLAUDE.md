@@ -16,7 +16,8 @@
 | LangChain 버전 | v1 |
 | 메모리 | SqliteSaver (롱텀, 재시작 후 유지) |
 | LLM 캐싱 | SQLiteCache (동일 질문 LLM 재호출 방지) |
-| 검색 방식 | 하이브리드 (ChromaDB 벡터 0.7 + BM25 키워드 0.3) |
+| 검색 방식 | 하이브리드 (ChromaDB 벡터 0.7 + Elasticsearch BM25 0.3) |
+| 키워드 검색 | Elasticsearch (Nori 한국어 형태소 분석기) |
 | Vector DB | ChromaDB |
 | Tool 1 | manual_search — ChromaDB 하이브리드 검색 |
 | Tool 2 | manual_crawl — 온디맨드 크롤링 (검색 실패 시 LLM이 호출) |
