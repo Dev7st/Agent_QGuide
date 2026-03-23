@@ -4,7 +4,7 @@ langchain-core
 langgraph
 langchain-ollama
 chromadb
-rank-bm25
+elasticsearch
 fastapi
 uvicorn
 sentence-transformers
