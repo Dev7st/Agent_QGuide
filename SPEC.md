@@ -16,7 +16,8 @@
 | LangChain 버전 | v1 |
 | 메모리 | SqliteSaver (롱텀, 재시작 후 유지) |
 | LLM 캐싱 | SQLiteCache (동일 질문 LLM 재호출 방지) |
-| 검색 방식 | 하이브리드 (ChromaDB 벡터 + BM25 키워드) |
+| 검색 방식 | 하이브리드 (ChromaDB 벡터 0.7 + Elasticsearch BM25 0.3) |
+| 키워드 검색 | Elasticsearch (Nori 한국어 형태소 분석기) |
 | Vector DB | ChromaDB |
 | 이미지 인식 | 구현 범위 외 (brand, model 직접 입력으로 테스트) |
 | 테스트 방식 | FastAPI 엔드포인트에 직접 입력값 전달 |
@@ -39,7 +40,7 @@ langgraph/
 ├── search/
 │   ├── __init__.py
 │   ├── vector_search.py     # ChromaDB 벡터 검색
-│   ├── keyword_search.py    # BM25 키워드 검색
+│   ├── keyword_search.py    # Elasticsearch BM25 키워드 검색
 │   └── hybrid_search.py     # RRF 융합
 ├── store/
 │   ├── __init__.py
@@ -79,7 +80,7 @@ class AgentState(TypedDict):
 ### Tool 1 — `manual_search`
 
 ```
-역할    : ChromaDB 하이브리드 검색 (벡터 + BM25)
+역할    : ChromaDB 하이브리드 검색 (벡터 + Elasticsearch BM25)
 입력    : query(str), brand(str), model(str)
 출력    : 검색 결과 텍스트 or "해당 제품의 매뉴얼이 등록되어 있지 않습니다."
 호출 시점: 사용자 질문에 대해 항상 첫 번째로 호출
@@ -179,12 +180,13 @@ langchain.llm_cache = SQLiteCache(database_path="cache/.langchain_cache.db")
 ## 하이브리드 검색 설계
 
 ```
-EnsembleRetriever
-  ├── ChromaDB 벡터 검색  (가중치 0.7) — 의미 기반
-  └── BM25Retriever       (가중치 0.3) — 키워드 기반 (모델명/오류코드 정확도)
+HybridSearchService
+  ├── ChromaDB 벡터 검색       (가중치 0.7) — 의미 기반
+  └── Elasticsearch BM25 검색  (가중치 0.3) — 키워드 기반 (모델명/오류코드 정확도)
 
-BM25를 추가한 이유: SAM123X / SAM123Y처럼 비슷한 모델명이나
+Elasticsearch를 추가한 이유: SAM123X / SAM123Y처럼 비슷한 모델명이나
 오류코드(E3, E4 등) 검색 시 벡터 검색만으로는 구분이 어렵기 때문
+Nori 형태소 분석기로 한국어 도메인 용어(탈수, 헹굼 등) 정확 처리
 ```
 
 ---
@@ -220,7 +222,7 @@ langchain-core
 langgraph
 langchain-ollama
 chromadb
-rank-bm25
+elasticsearch
 fastapi
 uvicorn
 sentence-transformers
