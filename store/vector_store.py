@@ -63,13 +63,15 @@ class VectorStore:
         )
 
         chunks = []
-        for doc, metadata, distance in zip(
+        for doc_id, text, metadata, distance in zip(
+            results["ids"][0],
             results["documents"][0],
             results["metadatas"][0],
             results["distances"][0],
         ):
             chunks.append({
-                "text": doc,
+                "id": doc_id,
+                "text": text,
                 "metadata": metadata,
                 "similarity": 1 / (1 + distance),  # L2 → 코사인 유사도 변환
             })
