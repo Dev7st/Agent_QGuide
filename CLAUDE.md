@@ -21,6 +21,7 @@
 | Vector DB | ChromaDB |
 | Tool 1 | manual_search — ChromaDB 하이브리드 검색 |
 | Tool 2 | manual_crawl — 온디맨드 크롤링 (검색 실패 시 LLM이 호출) |
+| PDF 처리 | PyMuPDF(fitz) — 텍스트 기반 PDF 직접 추출 (이미지 기반 미지원) |
 | 미들웨어 | 추후 필요 시 추가 |
 
 ## 폴더 구조

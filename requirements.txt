@@ -11,4 +11,6 @@ uvicorn
 sentence-transformers
 beautifulsoup4
 requests
+httpx
+pymupdf
 python-dotenv
