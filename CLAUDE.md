@@ -56,8 +56,8 @@ langgraph/
 ## StateGraph 핵심 흐름
 
 ```
-START → agent → should_continue() → tools → agent → END
-                                  ↘ END (tool_calls 없으면 종료)
+START → agent → tools_condition → tools → agent → END
+                               ↘ END (tool_calls 없으면 종료)
 ```
 
 tool calling 방식 사용 — LLM이 직접 tool 호출 여부와 순서를 결정한다.

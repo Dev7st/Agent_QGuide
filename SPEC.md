@@ -111,18 +111,18 @@ class AgentState(TypedDict):
 
 ```
 START → agent
-agent → should_continue() → tools or END
+agent → tools_condition → tools or END
 tools → agent
 ```
 
 ### 조건 함수
 
 ```python
-def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
-    last_message = state["messages"][-1]
-    if last_message.tool_calls:
-        return "tools"   # LLM이 tool 호출 결정
-    return "__end__"     # LLM이 최종 답변 생성 완료
+# langgraph.prebuilt의 tools_condition 사용
+# tool_calls 있으면 "tools" 노드로, 없으면 END
+from langgraph.prebuilt import tools_condition
+
+graph_builder.add_conditional_edges("agent", tools_condition)
 ```
 
 ### 흐름 예시
