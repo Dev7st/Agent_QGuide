@@ -66,7 +66,7 @@ from langgraph.graph.message import add_messages
 
 class AgentState(TypedDict):
     messages: Annotated[list, add_messages]  # 대화 히스토리 자동 누적
-    brand: str                               # 세탁기 브랜드 (samsung / lg / daewoo)
+    brand: str                               # 세탁기 브랜드 (samsung)
     model: str                               # 세탁기 모델명 (예: SAM123X)
 ```
 

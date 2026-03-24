@@ -8,7 +8,7 @@ app = FastAPI(title="QGuide Agent API")
 
 class ChatRequest(BaseModel):
     query: str       # 사용자 질문
-    brand: str       # 세탁기 브랜드 (samsung / lg / daewoo)
+    brand: str       # 세탁기 브랜드 (samsung)
     model: str       # 세탁기 모델명 (예: SAM123X)
     thread_id: str   # 사용자/세션 단위 대화 분리 키
 
