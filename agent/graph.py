@@ -4,7 +4,7 @@ import langchain
 from langchain_community.cache import SQLiteCache
 from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
@@ -43,15 +43,6 @@ _graph_builder.add_edge(START, "agent")
 _graph_builder.add_conditional_edges("agent", tools_condition)
 _graph_builder.add_edge("tools", "agent")
 
-# SqliteSaver — 재시작 후에도 대화 히스토리 유지 (thread_id 단위로 분리)
-_memory = SqliteSaver.from_conn_string(
-    os.getenv("MEMORY_DB_PATH")
-)
-
-# 그래프 컴파일 — 모듈 레벨 싱글턴, 임포트 시 1회만 실행
-app = _graph_builder.compile(checkpointer=_memory)
-
-
 async def run(query: str, brand: str, model: str, thread_id: str) -> str:
     """그래프 실행 진입점 — 5단계 main.py에서 호출
 
@@ -70,5 +61,8 @@ async def run(query: str, brand: str, model: str, thread_id: str) -> str:
         "brand": brand,
         "model": model,
     }
-    result = await app.ainvoke(initial_state, config=config)
+    # AsyncSqliteSaver — 비동기 환경에서 대화 히스토리 유지 (thread_id 단위로 분리)
+    async with AsyncSqliteSaver.from_conn_string(os.getenv("MEMORY_DB_PATH")) as memory:
+        app = _graph_builder.compile(checkpointer=memory)
+        result = await app.ainvoke(initial_state, config=config)
     return result["messages"][-1].content
