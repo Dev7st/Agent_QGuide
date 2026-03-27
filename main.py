@@ -27,8 +27,10 @@ async def chat(request: ChatRequest) -> ChatResponse:
     """에이전트 호출 엔드포인트 — StateGraph를 실행하고 LLM 최종 답변을 반환"""
     try:
         answer = await run(request.query, request.brand, request.model, request.thread_id)
-    except Exception:
-        raise HTTPException(status_code=500, detail="에이전트 오류가 발생했습니다.")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"에이전트 오류: {e}")
     return ChatResponse(response=answer, thread_id=request.thread_id)
 
 
