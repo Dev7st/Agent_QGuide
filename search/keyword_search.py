@@ -7,7 +7,7 @@ from elasticsearch.helpers import async_bulk
 from store.vector_store import VectorStore
 
 # Elasticsearch 연결 설정
-ES_URL = os.getenv("ES_URL", "http://localhost:9200")
+ES_URL = os.getenv("ES_URL")
 ES_INDEX = "manuals"
 
 # 검색 결과 최소 점수 임계값

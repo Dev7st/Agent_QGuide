@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import chromadb
 
 # ChromaDB 저장 경로
-CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "database/chroma_db")
+CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH")
 COLLECTION_NAME = "manuals"
 
 

@@ -13,13 +13,13 @@ from agent.tools import tools
 
 # LLM 캐시 설정 — 동일 질문에 대한 LLM 재호출 방지 (모듈 임포트 시 1회 실행)
 langchain.llm_cache = SQLiteCache(
-    database_path=os.getenv("LLM_CACHE_PATH", "cache/.langchain_cache.db")
+    database_path=os.getenv("LLM_CACHE_PATH")
 )
 
 # LLM 초기화 — EXAONE-3.5-7.8B, tool_calls 지원 모델
 _llm = ChatOllama(
-    model=os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b"),
-    base_url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
+    model=os.getenv("OLLAMA_MODEL"),
+    base_url=os.getenv("OLLAMA_URL"),
 )
 
 # LLM에 tools 바인딩 — LLM이 tool 스키마를 인식하여 tool_calls 결정
@@ -45,7 +45,7 @@ _graph_builder.add_edge("tools", "agent")
 
 # SqliteSaver — 재시작 후에도 대화 히스토리 유지 (thread_id 단위로 분리)
 _memory = SqliteSaver.from_conn_string(
-    os.getenv("MEMORY_DB_PATH", "database/conversations.db")
+    os.getenv("MEMORY_DB_PATH")
 )
 
 # 그래프 컴파일 — 모듈 레벨 싱글턴, 임포트 시 1회만 실행

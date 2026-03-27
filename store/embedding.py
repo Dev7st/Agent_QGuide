@@ -18,7 +18,7 @@ def _safe_torch_load(*args, **kwargs):
 torch.load = _safe_torch_load
 
 # 임베딩 모델 우선순위 (한국어 특화 → 다국어 → 범용)
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "jhgan/ko-sroberta-multitask")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 FALLBACK_MODELS = [
     "paraphrase-multilingual-MiniLM-L12-v2",
     "all-MiniLM-L6-v2",
