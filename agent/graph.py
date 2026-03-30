@@ -2,7 +2,7 @@ import os
 
 import langchain
 from langchain_community.cache import SQLiteCache
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_ollama import ChatOllama
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import START, StateGraph
@@ -28,7 +28,19 @@ _llm_with_tools = _llm.bind_tools(tools)
 
 async def _agent_node(state: AgentState) -> dict:
     """Agent 노드 — LLM이 messages를 읽고 tool_calls 여부를 결정"""
-    response = await _llm_with_tools.ainvoke(state["messages"])
+    # brand/model을 SystemMessage로 주입 — tool 호출 시 LLM이 올바른 값을 사용하도록
+    system = SystemMessage(
+        content=(
+            f"세탁기 브랜드: {state['brand']}, 모델명: {state['model']}.\n"
+            "tool 호출 시 반드시 이 brand와 model 값을 사용하라.\n"
+            "반드시 다음 순서를 따르라:\n"
+            "1. manual_search를 먼저 호출한다.\n"
+            "2. manual_search 결과가 없으면 반드시 manual_crawl을 호출한다.\n"
+            "3. manual_crawl 완료 후 manual_search를 다시 호출하여 답변한다.\n"
+            "매뉴얼 없이 임의로 답변하지 말라."
+        )
+    )
+    response = await _llm_with_tools.ainvoke([system] + state["messages"])
     return {"messages": [response]}
 
 
