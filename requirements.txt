@@ -5,7 +5,7 @@ langgraph
 langgraph-checkpoint-sqlite
 langchain-ollama
 chromadb
-elasticsearch
+elasticsearch>=8,<9
 fastapi
 uvicorn
 sentence-transformers
