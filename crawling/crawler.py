@@ -25,9 +25,10 @@ GOODS_ID_PATTERNS = [
     r'"goodsId":"([G]\d+)"',
 ]
 
-# 섹션 제목 감지 패턴 (HYBRID_SECTION_SIZE 전략)
-SECTION_TITLE_PATTERN = re.compile(
-    r'^(?:■|▶|\d+\.|단계\s*\d+\.|\*\s*\d+|[-•]\s*\d+)',
+# 삼성 매뉴얼 페이지 푸터 패턴 — 페이지 경계 감지용
+# 왼쪽 페이지: "2 한국어", 오른쪽 페이지: "한국어 3"
+PAGE_FOOTER_PATTERN = re.compile(
+    r'^\d+\s+한국어$|^한국어\s+\d+$',
     re.MULTILINE,
 )
 
@@ -307,18 +308,18 @@ class ManualCrawler:
     def _chunk_text(
         self, text: str, brand: str, model: str
     ) -> List[Dict[str, Any]]:
-        """이전 프로젝트(text_chunker.py)의 HYBRID_SECTION_SIZE 전략으로 청킹한다.
+        """페이지 푸터 기준 1차 분리 후 크기 기준 세분화로 청킹한다.
 
-        - 섹션 제목 패턴(■, ▶, 1., 단계 1. 등)으로 섹션 분리
-        - 500자 이하 섹션 → 1개 청크 유지
-        - 500자 초과 섹션 → 300~500자로 세분화 (문장 경계 보존)
+        - 페이지 푸터("2 한국어" / "한국어 3")로 페이지 단위 분리
+        - 500자 이하 페이지 → 1개 청크 유지
+        - 500자 초과 페이지 → 400자 목표로 문장 경계 세분화
         - 최소 청크 크기: 100자
 
         Returns:
             [{"id": ..., "text": ..., "metadata": ...}, ...]
         """
-        # 섹션 제목 위치로 텍스트 분할
-        sections = self._split_by_section_titles(text)
+        # 페이지 푸터 위치로 텍스트 분할
+        sections = self._split_by_page_footers(text)
 
         chunks: List[str] = []
         for section in sections:
@@ -345,23 +346,32 @@ class ManualCrawler:
 
         return documents
 
-    def _split_by_section_titles(self, text: str) -> List[str]:
-        """섹션 제목 패턴 위치를 기준으로 텍스트를 분할한다."""
-        matches = list(SECTION_TITLE_PATTERN.finditer(text))
+    def _split_by_page_footers(self, text: str) -> List[str]:
+        """페이지 푸터 위치를 기준으로 텍스트를 페이지 단위로 분할한다.
+
+        푸터 자체("2 한국어" 등)는 청크에서 제거한다.
+        푸터가 없으면 전체를 하나의 페이지로 처리한다.
+        """
+        matches = list(PAGE_FOOTER_PATTERN.finditer(text))
         if not matches:
             return [text]
 
-        sections: List[str] = []
-        # 첫 번째 제목 이전 텍스트
-        if matches[0].start() > 0:
-            sections.append(text[: matches[0].start()])
+        pages: List[str] = []
+        prev_end = 0
 
-        for idx, match in enumerate(matches):
-            start = match.start()
-            end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
-            sections.append(text[start:end])
+        for match in matches:
+            # 푸터 이전 텍스트를 한 페이지로
+            page_text = text[prev_end:match.start()].strip()
+            if page_text:
+                pages.append(page_text)
+            prev_end = match.end()
 
-        return sections
+        # 마지막 푸터 이후 남은 텍스트
+        tail = text[prev_end:].strip()
+        if tail:
+            pages.append(tail)
+
+        return pages
 
     def _split_by_sentences(self, text: str) -> List[str]:
         """문장 경계(. ! ?)를 기준으로 CHUNK_TARGET_SIZE 단위로 세분화한다."""
