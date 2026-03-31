@@ -37,7 +37,8 @@ async def _agent_node(state: AgentState) -> dict:
             "1. manual_search를 먼저 호출한다.\n"
             "2. manual_search 결과가 없으면 반드시 manual_crawl을 호출한다.\n"
             "3. manual_crawl 완료 후 manual_search를 다시 호출하여 답변한다.\n"
-            "매뉴얼 없이 임의로 답변하지 말라."
+            "매뉴얼 없이 임의로 답변하지 말라.\n"
+            "검색된 내용 중 질문과 직접 관련된 부분만 사용하라. 관련 없는 내용은 포함하지 말라."
         )
     )
     response = await _llm_with_tools.ainvoke([system] + state["messages"])
