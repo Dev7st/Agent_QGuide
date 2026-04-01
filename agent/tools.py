@@ -10,15 +10,24 @@ from store.embedding import EmbeddingService
 from store.vector_store import VectorStore
 
 # 모듈 레벨 싱글턴 — 최초 호출 시 초기화
+_embedding: EmbeddingService | None = None
 _hybrid_search: HybridSearchService | None = None
 _crawler: ManualCrawler | None = None
+
+
+def _get_embedding() -> EmbeddingService:
+    """EmbeddingService 싱글턴 반환 — HybridSearch/Crawler가 동일 인스턴스 공유"""
+    global _embedding
+    if _embedding is None:
+        _embedding = EmbeddingService()
+    return _embedding
 
 
 def _get_hybrid_search() -> HybridSearchService:
     """HybridSearchService 싱글턴 반환 (최초 호출 시 초기화)"""
     global _hybrid_search
     if _hybrid_search is None:
-        embedding       = EmbeddingService()
+        embedding       = _get_embedding()
         vector_store    = VectorStore()
         vector_search   = VectorSearchService(embedding, vector_store)
         keyword_search  = KeywordSearchService()
@@ -27,10 +36,10 @@ def _get_hybrid_search() -> HybridSearchService:
 
 
 def _get_crawler() -> ManualCrawler:
-    """ManualCrawler 싱글턴 반환 (최초 호출 시 초기화)"""
+    """ManualCrawler 싱글턴 반환 — EmbeddingService 재사용으로 중복 로딩 방지"""
     global _crawler
     if _crawler is None:
-        _crawler = ManualCrawler()
+        _crawler = ManualCrawler(embedding_service=_get_embedding())
     return _crawler
 
 
