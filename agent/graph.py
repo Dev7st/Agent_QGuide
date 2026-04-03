@@ -16,11 +16,10 @@ langchain.llm_cache = SQLiteCache(
     database_path=os.getenv("LLM_CACHE_PATH")
 )
 
-# LLM 초기화 — tool_calls 지원 모델, thinking 모드 비활성화
+# LLM 초기화 — tool_calls 지원 모델
 _llm = ChatOllama(
     model=os.getenv("OLLAMA_MODEL"),
     base_url=os.getenv("OLLAMA_URL"),
-    think=False,  # thinking 모드 비활성화 — 불필요한 추론 과정 제거
 )
 
 # LLM에 tools 바인딩 — LLM이 tool 스키마를 인식하여 tool_calls 결정
