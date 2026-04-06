@@ -11,7 +11,7 @@
 
 | 항목 | 결정 |
 |---|---|
-| LLM | EXAONE-3.5-7.8B (Ollama), 안 맞으면 교체 |
+| LLM | qwen3:4b (Ollama) |
 | Agent 구현 | LangGraph StateGraph |
 | LangChain 버전 | v1 |
 | 메모리 | SqliteSaver (롱텀, 재시작 후 유지) |
@@ -152,9 +152,9 @@ END
 ## 메모리 설정
 
 ```python
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.aiosqlite import AsyncSqliteSaver
 
-memory = SqliteSaver.from_conn_string("data/conversations.db")
+memory = AsyncSqliteSaver.from_conn_string("data/conversations.db")
 app = graph.compile(checkpointer=memory)
 
 # 사용자별 대화 분리
@@ -173,7 +173,8 @@ import langchain
 langchain.llm_cache = SQLiteCache(database_path="cache/.langchain_cache.db")
 ```
 
-동일한 (query + brand + model) 조합에 대해 LLM 재호출 없이 캐시 반환한다.
+SQLiteCache는 LLM에 전달되는 전체 메시지 배열을 키로 사용하므로, tool 결과가 포함되는 2번째 LLM 호출은 캐시 히트가 불가능하다.
+올바른 구현은 SQLiteCache 제거 후 run() 앞단에 (query + brand + model) 조합 키 기반 응용 레벨 캐시를 적용하는 방식이다. (미완료)
 
 ---
 
@@ -242,14 +243,14 @@ PyMuPDF(fitz)로 다운로드 및 분석
 
 ### 청킹 전략
 
-이전 프로젝트(text_chunker.py)의 HYBRID_SECTION_SIZE 전략 적용:
+페이지 푸터 패턴(PAGE_FOOTER_PATTERN) 기반 청킹 적용:
 
 ```
-분할 기준 : 섹션 제목 패턴 감지 (■, ▶, 1., 단계 1. 등)
+분할 기준 : 페이지 푸터 패턴 감지 (PAGE_FOOTER_PATTERN)
 섹션 처리 : 500자 이하 → 그대로 1개 청크 유지
            500자 초과 → 300~500자로 세분화 (문장 경계 보존)
 최소 크기 : 100자
-오버랩    : 없음 (섹션 단위 분할이므로 불필요)
+오버랩    : 없음 (페이지 단위 분할이므로 불필요)
 청크 ID   : {brand}_{model}_{index:04d}
 ```
 
