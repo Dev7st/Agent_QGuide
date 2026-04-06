@@ -17,9 +17,12 @@ langchain.llm_cache = SQLiteCache(
 )
 
 # LLM 초기화 — tool_calls 지원 모델
+# num_ctx: 검색 결과 포함 전체 컨텍스트 수용을 위해 8192로 확장 (기본값 2048으로는 매뉴얼 내용이 잘림)
 _llm = ChatOllama(
     model=os.getenv("OLLAMA_MODEL"),
     base_url=os.getenv("OLLAMA_URL"),
+    num_ctx=8192,
+    enable_thinking=False
 )
 
 # LLM에 tools 바인딩 — LLM이 tool 스키마를 인식하여 tool_calls 결정
@@ -78,4 +81,9 @@ async def run(query: str, brand: str, model: str, thread_id: str) -> str:
     async with AsyncSqliteSaver.from_conn_string(os.getenv("MEMORY_DB_PATH")) as memory:
         app = _graph_builder.compile(checkpointer=memory)
         result = await app.ainvoke(initial_state, config=config)
-    return result["messages"][-1].content
+    content = result["messages"][-1].content
+    # IPEX-LLM Ollama fork가 think 파라미터 미지원으로 thinking이 응답에 포함됨
+    # </think> 이후 내용만 추출 — 태그 없으면 그대로 반환
+    if "</think>" in content:
+        content = content.split("</think>", 1)[1].strip()
+    return content
